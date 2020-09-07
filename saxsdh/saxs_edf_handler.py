@@ -41,7 +41,7 @@ def load_edf(file_name:str)->dict:
 
     pix_mat=np.zeros((dim1,dim2))
     for (x,y) in itertools.product(range(dim1),range(dim2)):
-        pix_mat[x,y]=struct.unpack('f',data_bin[4*(x+y*dim1):4*(x+y*dim1+1)])[0]
+        pix_mat[x,y]=max(0,struct.unpack('f',data_bin[4*(x+y*dim1):4*(x+y*dim1+1)])[0])
 
     rst['data']=pix_mat
     
@@ -53,7 +53,7 @@ def edf_plotly(edf_dict:dict):
     '''
     import plotly.express as px
     
-    fig=px.imshow(np.log(np.add(edf_dict["data"],np.ones_like(edf_dict["data"]))))
+    fig=px.imshow(np.log10((edf_dict["data"]+1)))
     fig.show()
 
 def edf_matplot(edf_dict:dict):

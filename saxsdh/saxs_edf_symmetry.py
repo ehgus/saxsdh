@@ -10,16 +10,20 @@ def dev_edf(edf_dict:dict)->float:
     data=edf_dict["data"]
     
     #split data into four qudrant spaces
-    qudrants=[
-        data[:19,:19],
+    qudrants=np.dstack(
+        (data[:19,:19],
         data[:19,38:19:-1],
         data[38:19:-1,:19],
-        data[38:19:-1,38:19:-1]
-    ]
-    qudrants_log=list(map(lambda nparray: np.log(np.add(nparray,np.ones((19,19)))),qudrants))
+        data[38:19:-1,38:19:-1])
+    )
+    mean=np.mean(qudrants,axis=2)
+    meanSq=np.mean(qudrants*qudrants,axis=2)
+    return np.sum((meanSq+4)/(mean**(2+1/8)+1))
+    #qudrants_log=list(map(lambda nparray: np.log(np.add(nparray,1))),qudrants))
     # why log?: to suppress noise of incident beam
     #return deviation
-    return np.sum(np.std(qudrants_log,axis=0))
+    
+    #return np.add(np.std(qudrants_log,axis=0),100)/np.mean()
 
 
 ## represent graph
@@ -55,7 +59,7 @@ def sym_graph(dir_path:str,file_re='*.edf',table_out=False):
     fig.add_trace(go.Scatter(
         x=x_cor,
         y=y_cor,
-        text=devs,
+        text=edf_files,
         mode='markers',
         marker=dict(
             color=devs,
